@@ -1,0 +1,65 @@
+SCREEN 800,600
+
+Include "customfunctions.cb"
+
+Type BALLS
+    Field img
+    Field x As Float
+    Field y As Float 
+    Field vx As Float 
+    Field vy As Float
+EndType
+
+g = LoadImage("fog_g.png")
+r = LoadImage("fog_r.png")
+h = LoadImage("fog.png")
+
+count = 48
+For i = 0 To count
+    ball.BALLS = New(BALLS)
+
+    ball\img = CloneImage(h)
+
+    ball\x = Rand(800)
+    ball\y = Rand(600)
+    ball\vx = Rnd(-0.5,0.5)
+    ball\vy = Rnd(-0.5,0.5)
+    RotateImage ball\img, Rnd(360)
+    Text 0,0,(i/Float(count))*100+"%"
+    DrawScreen
+Next i
+t = Timer()
+t1 = 1000
+DefaultMask OFF
+blendmask = MakeImage(800,600)
+cr = 255
+cg = 0
+
+sdf = 1
+Repeat
+    cg = cg + sdf
+    If cg >= 125 Or cg <= 0 Then sdf = -sdf
+    DrawToImage blendmask
+        cbEColor(0,0,0,255)
+        Box 0,0,800,600
+        cbeSetBlendMode(CBE_BLEND_OVERWRITE)
+        cbEColor(0,cg,0,1)
+        Box 0,0,800,600
+    DrawToScreen
+    DrawImage blendmask,0,0
+    cbeSetBlendModeAdvanced(CBE_BLEND_ADD, CBE_BLEND_ONE, CBE_BLEND_ONE)
+    For ball.BALLS = Each BALLS
+        DrawImage ball\img, ball\x, ball\y
+        ball\x = ball\x + ball\vx
+        ball\y = ball\y + ball\vy
+        If ball\x>800 Or ball\x<0 Then ball\vx = -ball\vx
+        If ball\y>600 Or ball\y<0 Then ball\vy = -ball\vy
+        erf = erf + 1
+    Next ball
+    erf = 0
+    Color 255,255,255
+    Text 0,0,FPS()
+    Text 0,15,t1
+    DrawScreen
+Forever
+    
