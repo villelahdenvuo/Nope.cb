@@ -2,6 +2,11 @@ SCREEN 800,600
 
 Include "customfunctions.cb"
 
+bpm = 160        
+spd = 4
+space = 60000/bpm*spd/6
+
+// Ne oli aluks palloi, ei enää
 Type BALLS
     Field img
     Field x As Float
@@ -10,43 +15,48 @@ Type BALLS
     Field vy As Float
 EndType
 
-g = LoadImage("fog_g.png")
-r = LoadImage("fog_r.png")
 h = LoadImage("fog.png")
 
 count = 48
 For i = 0 To count
     ball.BALLS = New(BALLS)
-
     ball\img = CloneImage(h)
-
     ball\x = Rand(800)
     ball\y = Rand(600)
-    ball\vx = Rnd(-0.5,0.5)
-    ball\vy = Rnd(-0.5,0.5)
-    RotateImage ball\img, Rnd(360)
-    Text 0,0,(i/Float(count))*100+"%"
+    ball\vx = Rnd(-2,2)
+    ball\vy = Rnd(-2,2)
+    RotateImage ball\img, Rnd(360) // Pakko kääntää, muuten menee huonosti
+    Text 0,0,Int((i/Float(count)))*100+"%"
     DrawScreen
 Next i
-t = Timer()
-t1 = 1000
-DefaultMask OFF
-blendmask = MakeImage(800,600)
-cr = 255
-cg = 0
 
-sdf = 1
+PlaySound "intro.xm"
+start = Timer()
+
 Repeat
-    cg = cg + sdf
-    If cg >= 125 Or cg <= 0 Then sdf = -sdf
-    DrawToImage blendmask
-        cbEColor(0,0,0,255)
-        Box 0,0,800,600
-        cbeSetBlendMode(CBE_BLEND_OVERWRITE)
-        cbEColor(0,cg,0,1)
-        Box 0,0,800,600
-    DrawToScreen
-    DrawImage blendmask,0,0
+    // Kauheeta kopiointia Wingin synkkaus esimerkistä
+    aika=Timer()-start
+    wisku1=isku1
+    isku1=(aika/space)   
+    wisku2=isku2
+    isku2=(aika/space)/2
+    
+    If isku1<>wisku1 Then
+        c# = 255
+    Else
+        c#=CurveValue(0,c,10)
+    EndIf 
+    
+    If isku2<>wisku2 And aika>14800 Then
+      c2#= 255
+    Else
+      c2#=CurveValue(0,c2,20)
+    EndIf 
+   
+    cbeSetBlendMode(CBE_BLEND_OVERWRITE)
+    cbEColor(c#,c2#,0,200) 
+    Box 0,0,800,600
+    
     cbeSetBlendModeAdvanced(CBE_BLEND_ADD, CBE_BLEND_ONE, CBE_BLEND_ONE)
     For ball.BALLS = Each BALLS
         DrawImage ball\img, ball\x, ball\y
@@ -54,12 +64,10 @@ Repeat
         ball\y = ball\y + ball\vy
         If ball\x>800 Or ball\x<0 Then ball\vx = -ball\vx
         If ball\y>600 Or ball\y<0 Then ball\vy = -ball\vy
-        erf = erf + 1
     Next ball
-    erf = 0
+    
     Color 255,255,255
     Text 0,0,FPS()
-    Text 0,15,t1
     DrawScreen
 Forever
     
