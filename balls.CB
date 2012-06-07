@@ -2,9 +2,8 @@ SCREEN 800,600
 
 Include "customfunctions.cb"
 
-bpm = 160        
-spd = 4
-space = 60000/bpm*spd/6
+bpm = 210
+space = 60000/bpm
 
 // Ne oli aluks palloi, ei en‰‰
 Type BALLS
@@ -26,28 +25,28 @@ For i = 0 To count
     ball\vx = Rnd(-2,2)
     ball\vy = Rnd(-2,2)
     RotateImage ball\img, Rnd(360) // Pakko k‰‰nt‰‰, muuten menee huonosti
-    Text 0,0,Int((i/Float(count)))*100+"%"
+    Text 0,0,Int((i/Float(count))*100)+"%"
     DrawScreen
 Next i
 
-PlaySound "intro.xm"
+PlaySound "Chipz4end.xm"
 start = Timer()
 
 Repeat
     // Kauheeta kopiointia Wingin synkkaus esimerkist‰
     aika=Timer()-start
     wisku1=isku1
-    isku1=(aika/space)   
+    isku1=(aika/space)/4
     wisku2=isku2
     isku2=(aika/space)/2
     
-    If isku1<>wisku1 Then
+    If isku1<>wisku1 And aika>9000 Then
         c# = 255
     Else
         c#=CurveValue(0,c,10)
     EndIf 
     
-    If isku2<>wisku2 And aika>14800 Then
+    If isku2<>wisku2 And aika>18000 Then
       c2#= 255
     Else
       c2#=CurveValue(0,c2,20)
@@ -68,6 +67,7 @@ Repeat
     
     Color 255,255,255
     Text 0,0,FPS()
+    Text 0,15,aika
     DrawScreen
 Forever
     
