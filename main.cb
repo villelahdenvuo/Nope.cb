@@ -1,0 +1,33 @@
+Const sw = 960
+Const sh = 540
+SCREEN sw, sh
+
+Global multiplier As Float
+
+Include "customfunctions.cb"
+Include "balls.cb"
+
+bpm = 210
+space = 60000/bpm
+
+Gosub InitFogs
+
+PlaySound "Chipz4end.xm"
+start = Timer()
+lastUpdate = Timer()
+Repeat
+    multiplier = Float(Timer() - lastUpdate)/10.0
+    lastUpdate = Timer()
+    aika = Timer()-start
+    If aika<42000 Then Gosub EffectFogs
+    
+    Color 255,255,255
+    Text 0,0,FPS()
+    Text 0,15,aika
+    Text 0,30,multiplier
+    DrawScreen
+Forever
+
+Function smooth#(_new,_old,_smooth)
+    Return _old + (_new - _old) * (1.0 / _smooth) * multiplier
+EndFunction 
