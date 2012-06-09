@@ -10,6 +10,9 @@ Type FOGS
 EndType
 
 h = LoadImage("fog.png")
+swra# = ScreenWidth()/960.0
+shra# = ScreenHeight()/540.0
+
 count = 48
 For i = 0 To count
     fog.FOGS = New(FOGS)
@@ -19,7 +22,7 @@ For i = 0 To count
     fog\vx = Rnd(-2,2)
     fog\vy = Rnd(-2,2)
     fog\a = Rnd(360)
-    If ScreenWidth()<>960 Or ScreenHeight()<>540 Then ResizeImage fog\img, 722*(ScreenWidth()/960.0), 477*(ScreenHeight()/540.0)
+    If ScreenWidth()<>960 Or ScreenHeight()<>540 Then ResizeImage fog\img, 722*swra#, 477*shra#
     RotateImage fog\img, fog\a // Pakko k‰‰nt‰‰, muuten menee huonosti
     Text 0,0,Int((i/Float(count))*100)+"%"
     DrawScreen
@@ -27,13 +30,11 @@ Next i
 
 Return
 
-EffectFogs:
+CalcFogs:
 
 // Kauheeta kopiointia Wingin synkkaus esimerkist‰
-wisku1 = isku1
-If aika<18000 Then isku1 = ((aika-300)/space)/4 Else isku1 = (aika/space)/4
-wisku2 = isku2
-isku2 = (aika/space)/2
+
+If aika<18000 Then isku1 = ((aika-300)/space)/4
 
 If isku1<>wisku1 And aika>9000 And (aika<37000 Or aika>46000) Then
     c# = 255
@@ -47,22 +48,29 @@ Else
   c2# = smooth(0,c2,20)
 EndIf 
 
-cbeSetBlendMode(CBE_BLEND_OVERWRITE)
-cbEColor(c#,c2#,0,200) 
-Box 0,0,ScreenWidth(),ScreenHeight()
-
-cbeSetBlendModeAdvanced(CBE_BLEND_ADD, CBE_BLEND_ONE, CBE_BLEND_ONE)
 For fog.FOGS = Each FOGS       
-    DrawImage fog\img, fog\x, fog\y
     If aika<37000 Then
-        fog\x = fog\x + fog\vx*multiplier*((c#+c2#+64)/64.0)
-        fog\y = fog\y + fog\vy*multiplier*((c#+c2#+64)/64.0)
+        fog\x = fog\x + fog\vx*((c#+c2#+64)/64.0)*swra#*multiplier
+        fog\y = fog\y + fog\vy*((c#+c2#+64)/64.0)*shra#*multiplier
         If fog\x>ScreenWidth() Or fog\x<0 Then fog\vx = -fog\vx
         If fog\y>ScreenHeight() Or fog\y<0 Then fog\vy = -fog\vy
     Else
-        fog\x = fog\x + Cos(fog\a)*multiplier*3
-        fog\y = fog\y - Sin(fog\a)*multiplier*3
+        fog\x = fog\x + Cos(fog\a)*swra#*multiplier*3
+        fog\y = fog\y - Sin(fog\a)*shra#*multiplier*3
     EndIf
+Next fog
+
+Return
+
+DrawFogs:
+
+cbeSetBlendMode(CBE_BLEND_RESET)
+cbEColor(c#,c2#,0,200)
+Box 0,0,ScreenWidth(),ScreenHeight()
+
+cbeSetBlendMode(CBE_BLEND_ADDITIVE)
+For fog.FOGS = Each FOGS
+    DrawImage fog\img, fog\x, fog\y
 Next fog
 
 Return
