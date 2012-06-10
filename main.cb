@@ -8,9 +8,12 @@ Include "customfunctions.cb"
 
 bpm = 210
 space = 60000/bpm
+swra# = ScreenWidth()/960.0
+shra# = ScreenHeight()/540.0
 
 // Alustamiset, precalcit etc.
 Gosub InitFogs
+Gosub InitExplosion
 
 PlaySound "Chipz4end.xm"
 start = Timer()
@@ -25,25 +28,28 @@ Repeat
         wisku2 = isku2
         isku2 = (aika/space)/2
         
+        If aika<18000 Then isku1 = ((aika-300)/space)/4        
+        
         If aika<42000 Then Gosub CalcFogs
+        If aika>55000 Then Gosub CalcExplosion
         
         t = t + multiplier*10
     Wend
     
     // Piirtämiset
-    Gosub DrawFogs
+    If aika<42000 Then Gosub DrawFogs
+    If aika>42000 And aika<55000 Then Text ScreenWidth()/2-TextWidth("FPS: "+FPS())/2,ScreenHeight()/2,"FPS: "+FPS()
+    If aika>55000 Then Gosub DrawExplosion
     
     cbeSetBlendMode(CBE_BLEND_RESET)
     Color 255,255,255
     Text 0,0,FPS()
     Text 0,15,aika
-    Text 0,30,multiplier
-    Text 0,45,slt_t
-    Text 0,60,Timer()-slt_t
     DrawScreen
 Forever
 
 Include "balls.cb"
+Include "explosion.cb"
 
 Function smooth#(_new,_old,_smooth)
     Return _old + (_new - _old) * (1.0 / _smooth) * multiplier

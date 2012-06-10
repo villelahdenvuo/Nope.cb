@@ -10,8 +10,6 @@ Type FOGS
 EndType
 
 h = LoadImage("fog.png")
-swra# = ScreenWidth()/960.0
-shra# = ScreenHeight()/540.0
 
 count = 48
 For i = 0 To count
@@ -33,8 +31,6 @@ Return
 CalcFogs:
 
 // Kauheeta kopiointia Wingin synkkaus esimerkistä
-
-If aika<18000 Then isku1 = ((aika-300)/space)/4
 
 If isku1<>wisku1 And aika>9000 And (aika<37000 Or aika>46000) Then
     c# = 255

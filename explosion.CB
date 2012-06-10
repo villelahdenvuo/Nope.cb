@@ -1,0 +1,54 @@
+InitExplosion:
+
+Type PARTICLES
+    Field x As Float
+    Field y As Float
+    Field vx As Float
+    Field vy As Float
+    Field i 'As Byte
+EndType
+
+Dim ball_c(1)
+
+ball_c(0) = LoadImage("red.png")
+ball_c(1) = LoadImage("yellow.png")
+ResizeImage ball_c(0), 64*swra#, 64*shra#
+ResizeImage ball_c(1), 64*swra#, 64*shra#
+
+Return
+
+CalcExplosion:
+
+If isku2<>wisku2 Then
+    Explosion(Rand(ScreenWidth()-64),Rand(ScreenHeight()-64))
+EndIf 
+
+'multiplier# = (Timer()-lastupdate)/10.0
+'lastupdate = Timer()
+For prt.PARTICLES = Each PARTICLES
+    prt\x = prt\x + prt\vx*multiplier*swra#
+    prt\y = prt\y + prt\vy*multiplier*shra#
+    If prt\x<-64 Or prt\x>ScreenWidth() Or prt\y<-64 Or prt\y>ScreenHeight() Then Delete prt
+Next prt
+
+Return
+
+DrawExplosion:
+cbeSetBlendMode(CBE_BLEND_RESET)
+For prt.PARTICLES = Each PARTICLES
+    DrawImage ball_c(prt\i), prt\x, prt\y
+Next prt
+
+Return
+
+Function Explosion(x,y,c=512)
+    For i = 0 To c
+        kk# = 360.0/c
+        prt.PARTICLES = New(PARTICLES)
+        prt\x = x+Cos(i*kk#)*24
+        prt\y = y-Sin(i*kk#)*24
+        prt\vx = Rnd(-8,8)
+        prt\vy = Rnd(-8,8)
+        prt\i = (i Mod 2)
+    Next i
+EndFunction
