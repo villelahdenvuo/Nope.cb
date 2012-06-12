@@ -15,9 +15,9 @@ count = 48
 For i = 0 To count
     fog.FOGS = New(FOGS)
     fog\img = CloneImage(h)
-    fog\x = Rand(ScreenWidth())
-    fog\y = Rand(ScreenHeight())
-    fog\vx = Rnd(-2,2)
+    fog\x = Rand(sw) + (1 - Rand(1) * 2) * sw * 1.2
+    fog\y = Rand(sh)
+    fog\vx = Rnd(1, 3) * (1 - (fog\x > sw) * 2)
     fog\vy = Rnd(-2,2)
     fog\a = Rnd(360)
     If ScreenWidth()<>960 Or ScreenHeight()<>540 Then ResizeImage fog\img, 722*swra#, 477*shra#
@@ -32,24 +32,27 @@ CalcFogs:
 
 // Kauheeta kopiointia Wingin synkkaus esimerkistä
 
-If isku1<>wisku1 And aika>9000 And (aika<37000 Or aika>46000) Then
+If isku1<>wisku1 And runTime>9000 And (runTime<37000 Or runTime>46000) Then
     c# = 255
 Else
     c# = smooth(0,c,10)
 EndIf 
 
-If isku2<>wisku2 And aika>18000 And aika<37000 Then
+If isku2<>wisku2 And runTime>18000 And runTime<37000 Then
   c2# = 255
 Else
   c2# = smooth(0,c2,20)
-EndIf 
+EndIf
 
-For fog.FOGS = Each FOGS       
-    If aika<37000 Then
+For fog.FOGS = Each FOGS
+    If runTime < 5000 Then // Slide in from the sides
+        fog\x = fog\x + fog\vx * swra * multiplier
+        fog\y = fog\y - Sin(fog\a) * shra * multiplier * 0.5
+    ElseIf runTime > 5000 And runTime < 37000
         fog\x = fog\x + fog\vx*((c#+c2#+64)/64.0)*swra#*multiplier
         fog\y = fog\y + fog\vy*((c#+c2#+64)/64.0)*shra#*multiplier
-        If fog\x>ScreenWidth() Or fog\x<0 Then fog\vx = -fog\vx
-        If fog\y>ScreenHeight() Or fog\y<0 Then fog\vy = -fog\vy
+        If fog\x>sw Or fog\x<0 Then fog\vx = -fog\vx
+        If fog\y>sh Or fog\y<0 Then fog\vy = -fog\vy
     Else
         fog\x = fog\x + Cos(fog\a)*swra#*multiplier*3
         fog\y = fog\y - Sin(fog\a)*shra#*multiplier*3
@@ -61,8 +64,8 @@ Return
 DrawFogs:
 
 cbeSetBlendMode(CBE_BLEND_RESET)
-cbEColor(c#,c2#,0,200)
-Box 0,0,ScreenWidth(),ScreenHeight()
+cbEColor(c#, c2#, 0, 200)
+Box 0, 0, ScreenWidth(), ScreenHeight()
 
 cbeSetBlendMode(CBE_BLEND_ADDITIVE)
 For fog.FOGS = Each FOGS

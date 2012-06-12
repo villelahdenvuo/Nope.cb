@@ -1,56 +1,76 @@
+// Window init
 Const sw = 640
 Const sh = 360
+swra# = ScreenWidth() / 960.0
+shra# = ScreenHeight() / 540.0
 SCREEN sw, sh
 
+defaultFont = LoadFont("Courier New")
+
 Global multiplier As Float
+multiplier = 1 // Change this if the intro startTimes to stutter. :u
 
 Include "customfunctions.cb"
 
+// Music sync
 bpm = 210
-space = 60000/bpm
-swra# = ScreenWidth()/960.0
-shra# = ScreenHeight()/540.0
+space = 60000 / bpm
 
-// Alustamiset, precalcit etc.
+// Timings
+Const EFFECT_FOG        = 43000
+Const EFFECT_TITLE      = 55000
+Const EFFECT_EXPLOSIONS = 60000
+
+
+// Effect init / precalc
 Gosub InitFogs
 Gosub InitExplosion
+Gosub InitTitle
 
+// Start!
 PlaySound "Chipz4end.xm"
-start = Timer()
+startTime = Timer()// - EFFECT_FOG // Skip to the end of the fog
 lastUpdate = Timer()
 t = Timer()
-multiplier = 1 // Jos tökkii nii tätä voi kasvattaa kunhan ei liikaa :u
+
 Repeat
-    aika = Timer()-start
-    While t<Timer()
+    runTime = Timer() - startTime
+    
+    // Simulation
+    While t < Timer()
         wisku1 = isku1
-        isku1 = (aika/space)/4
+        isku1 = (runTime / space) / 4
         wisku2 = isku2
-        isku2 = (aika/space)/2
-        
-        If aika<18000 Then isku1 = ((aika-300)/space)/4        
-        
-        If aika<42000 Then Gosub CalcFogs
-        If aika>55000 Then Gosub CalcExplosion
-        
-        t = t + multiplier*10
+        isku2 = (runTime / space) / 2
+
+        // Move to CalcFogs?
+        If runTime < 18000 Then isku1 = ((runTime - 300) / space) / 4        
+
+        If runTime < EFFECT_FOG Then Gosub CalcFogs
+        If runTime > EFFECT_FOG And runTime < EFFECT_TITLE Then Gosub CalcTitle
+        If runTime > EFFECT_TITLE Then Gosub CalcExplosion
+
+        t = t + multiplier * 10
     Wend
     
-    // Piirtämiset
-    If aika<42000 Then Gosub DrawFogs
-    If aika>42000 And aika<55000 Then Text ScreenWidth()/2-TextWidth("FPS: "+FPS())/2,ScreenHeight()/2,"FPS: "+FPS()
-    If aika>55000 Then Gosub DrawExplosion
+    // Drawing
+    If runTime < EFFECT_FOG Then Gosub DrawFogs
+    If runTime > EFFECT_FOG And runTime < EFFECT_TITLE Then Gosub DrawTitle
+    If runTime > EFFECT_TITLE Then Gosub DrawExplosion
     
     cbeSetBlendMode(CBE_BLEND_RESET)
-    Color 255,255,255
-    Text 0,0,FPS()
-    Text 0,15,aika
+    SetFont defaultFont
+    Color 255, 255, 255
+    Text 0, 0, FPS()
+    Text 0, 15, runTime
+    Text 0, 30, fadeIn#
     DrawScreen
 Forever
 
 Include "balls.cb"
+Include "title.cb"
 Include "explosion.cb"
 
-Function smooth#(_new,_old,_smooth)
+Function smooth#(_new#,_old#,_smooth#)
     Return _old + (_new - _old) * (1.0 / _smooth) * multiplier
 EndFunction 

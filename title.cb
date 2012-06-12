@@ -1,0 +1,75 @@
+InitTitle:
+
+titleFont = LoadFont("appleberry.ttf", 48, ON, OFF, OFF)
+SetFont titleFont
+
+Type LETTERS
+    Field img
+    Field x As Float
+    Field y As Float
+    Field tx As Float 
+    Field ty As Float
+    Field l As String
+EndType
+
+title$ = "Nope.cb"
+
+i = Len(title)
+padding = TextWidth("_") + 10
+tw = TextWidth(title)
+
+While i > 0
+    l.LETTERS = New(LETTERS)
+    l\x = Rand(sw)
+    l\y = Rand(sh)
+    l\tx = (sw / 2) + (i * padding) - tw
+    l\ty = (sh / 2) - 15
+    l\l = Mid(title, i, 1)
+    i - 1
+Wend
+
+Return
+
+CalcTitle:
+
+fadeIn# = Float(Max(Min((Timer() - (startTime + EFFECT_FOG)) / 20, 255), 1)) / 255
+
+If isku1<>wisku1 And runTime>9000 And (runTime<37000 Or runTime>46000) Then
+    c# = 255
+Else
+    c# = smooth(0,c,10)
+EndIf 
+
+If isku2<>wisku2 And runTime>18000 And runTime<37000 Then
+  c2# = 255
+Else
+  c2# = smooth(0,c2,20)
+EndIf
+
+For l.LETTERS = Each LETTERS
+    l\x = smooth(l\tx, l\x, 70.0)
+    l\y = smooth(l\ty, l\y, 20.0)
+
+    If isku1 <> wisku1 And runTime > EFFECT_TITLE - 9000  Then
+        l\y = l\y + Rand(-sh * 0.3, sh * 0.3)
+    EndIf
+    
+Next l
+
+Return
+
+DrawTitle:
+
+cbeSetBlendMode(CBE_BLEND_ADDITIVE)
+cbEColor(90, 255 * fadeIn, 255 * fadeIn, 255)
+SetFont titleFont
+For l.LETTERS = Each LETTERS
+    Text l\x, l\y, l\l
+Next l
+
+'cbeSetBlendMode(CBE_BLEND_RESET)
+cbEColor(c#, c2#, 0, 100)
+Box 0, 0, sw, sh
+
+
+Return
