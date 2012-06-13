@@ -17,14 +17,16 @@ For i = 0 To count
     fog\img = CloneImage(h)
     fog\x = Rand(sw) + (1 - Rand(1) * 2) * sw * 1.2
     fog\y = Rand(sh)
-    fog\vx = Rnd(1, 3) * (1 - (fog\x > sw) * 2)
+    fog\vx = 4 * (1 - (fog\x > sw) * 2)
     fog\vy = Rnd(-2,2)
     fog\a = Rnd(360)
-    If ScreenWidth()<>960 Or ScreenHeight()<>540 Then ResizeImage fog\img, 722*swra#, 477*shra#
+    If sw<>960 Or sh<>540 Then ResizeImage fog\img, 722 * swra, 477 * shra
     RotateImage fog\img, fog\a // Pakko k‰‰nt‰‰, muuten menee huonosti
     Text 0,0,Int((i/Float(count))*100)+"%"
     DrawScreen
 Next i
+
+once = True
 
 Return
 
@@ -46,18 +48,21 @@ EndIf
 
 For fog.FOGS = Each FOGS
     If runTime < 5000 Then // Slide in from the sides
-        fog\x = fog\x + fog\vx * swra * multiplier
-        fog\y = fog\y - Sin(fog\a) * shra * multiplier * 0.5
+        fog\x = fog\x + fog\vx * swra * multiplier * 0.5
+        fog\y = fog\y - Sin(fog\a) * shra * multiplier
     ElseIf runTime > 5000 And runTime < 37000
+        If once Then fog\vx = Rnd(-3, 3)
         fog\x = fog\x + fog\vx*((c#+c2#+64)/64.0)*swra#*multiplier
         fog\y = fog\y + fog\vy*((c#+c2#+64)/64.0)*shra#*multiplier
         If fog\x>sw Or fog\x<0 Then fog\vx = -fog\vx
         If fog\y>sh Or fog\y<0 Then fog\vy = -fog\vy
     Else
-        fog\x = fog\x + Cos(fog\a)*swra#*multiplier*3
-        fog\y = fog\y - Sin(fog\a)*shra#*multiplier*3
+        fog\x = fog\x + Cos(fog\a) * swra * multiplier * 3
+        fog\y = fog\y - Sin(fog\a) * shra * multiplier * 3
     EndIf
 Next fog
+
+If runTime > 5000 And runTime < 6000 Then once = False
 
 Return
 

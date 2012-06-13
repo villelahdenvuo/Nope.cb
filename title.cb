@@ -1,6 +1,6 @@
 InitTitle:
 
-titleFont = LoadFont("appleberry.ttf", 48, ON, OFF, OFF)
+titleFont = LoadFont("appleberry.ttf", RoundUp(96 * swra), ON, OFF, OFF)
 SetFont titleFont
 
 Type LETTERS
@@ -16,7 +16,7 @@ title$ = "Nope.cb"
 
 i = Len(title)
 padding = TextWidth("_") + 10
-tw = TextWidth(title)
+tw = TextWidth(title) / 1.3
 
 While i > 0
     l.LETTERS = New(LETTERS)
@@ -28,40 +28,76 @@ While i > 0
     i - 1
 Wend
 
+s# = 0
+exitTitle = True
+
 Return
 
 CalcTitle:
 
-fadeIn# = Float(Max(Min((Timer() - (startTime + EFFECT_FOG)) / 20, 255), 1)) / 255
+fadeIn# = Float(Max(Min((Timer() - (startTime + EFFECT_FOG)) / 10, 255), 1)) / 255
+// FadeOut.
+fadeIn = FadeIn * Float(Max(Min(((startTime + EFFECT_FOG) + 15500 - Timer()) / 10, 255), 1)) / 255
 
-If isku1<>wisku1 And runTime>9000 And (runTime<37000 Or runTime>46000) Then
+If isku1 <> wisku1 Then
     c# = 255
 Else
-    c# = smooth(0,c,10)
+    c# = smooth(0, c, 10)
 EndIf 
 
-If isku2<>wisku2 And runTime>18000 And runTime<37000 Then
+If isku2 <> wisku2 And runTime > EFFECT_TITLE - 14000 And runTime < EFFECT_TITLE Then
   c2# = 255
 Else
-  c2# = smooth(0,c2,20)
+  c2# = smooth(0, c2, 20)
+EndIf
+
+
+If isku2 <> wisku2 And runTime > EFFECT_TITLE - 14000 And runTime < EFFECT_TITLE Then
+  s = 100
+Else
+  s = smooth(0, s, 60)
 EndIf
 
 For l.LETTERS = Each LETTERS
-    l\x = smooth(l\tx, l\x, 70.0)
-    l\y = smooth(l\ty, l\y, 20.0)
+    l\x = smooth(l\tx, l\x, 80.0)
+    l\y = smooth(l\ty, l\y, 30.0)
 
-    If isku1 <> wisku1 And runTime > EFFECT_TITLE - 9000  Then
-        l\y = l\y + Rand(-sh * 0.3, sh * 0.3)
+    If isku2 <> wisku2 And runTime > EFFECT_TITLE - 11000  Then
+        l\y = l\y + Rand(-sh * 0.1, sh * 0.1)
     EndIf
-    
 Next l
+
+If runTime > EFFECT_TITLE - 3000 And exitTitle Then
+    exitTitle = False
+    For l.LETTERS = Each LETTERS
+        l\tx = Rand(sw) + (1 - Rand(1) * 2) * sw * 0.8
+        l\ty = Rand(sh) + (1 - Rand(1) * 2) * sh * 0.15
+    Next l
+EndIf
 
 Return
 
 DrawTitle:
 
 cbeSetBlendMode(CBE_BLEND_ADDITIVE)
-cbEColor(90, 255 * fadeIn, 255 * fadeIn, 255)
+
+cbEColor(90 * fadeIn, 255 * fadeIn, 200 * fadeIn, 10)
+For i = 0 To 10
+    x = sw / 10 * i + 50 * Cos(runTime/10) + 100 * Sin(runTime/20) + s
+    y = sh / 4 + sh / 1.5 * Sin(i * 40 + runTime/10) + 50 * Sin(runTime/10)
+    sc = 1 + (s / 100)
+    cbeTriangle(x, y, x + 10 * sc * Cos(runTime) * swra, y + 10 * sc * shra, x - 8 * sc * swra, y + 13 * sc + 10 * Sin(runTime) * shra, 2, ON)
+Next i
+
+cbEColor(200 * fadeIn, 255 * fadeIn, 90 * fadeIn, 10)
+For i = 0 To 10
+    x = sw / 10 + sw / 10 * i + 40 * Cos(runTime/8) + 140 * Sin(runTime/25) - s
+    y = sh / 4 + sh / 1.2 * Sin(i * 40 + runTime/10) + 50 * Sin(runTime/12)
+    sc = 1 + (s / 100)
+    cbeTriangle(x + 14 * Cos(runTime) * swra, y, x + 16 * sc * swra, y + 6 * sc + 10 * Sin(runTime) * shra, x - 8 * sc * swra, y + 13 * sc * shra, 2, ON)
+Next i
+
+cbEColor(90 * fadeIn, 255 * fadeIn, c2 * fadeIn, 255)
 SetFont titleFont
 For l.LETTERS = Each LETTERS
     Text l\x, l\y, l\l

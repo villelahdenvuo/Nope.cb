@@ -1,14 +1,15 @@
 // Window init
 Const sw = 640
 Const sh = 360
-swra# = ScreenWidth() / 960.0
-shra# = ScreenHeight() / 540.0
+swra# = sw / 960.0
+shra# = sh / 540.0
 SCREEN sw, sh
 
 defaultFont = LoadFont("Courier New")
 
 Global multiplier As Float
-multiplier = 1 // Change this if the intro startTimes to stutter. :u
+multiplier = 1 // Change this if the intro starts to stutter. :u
+Randomize 1337
 
 Include "customfunctions.cb"
 
@@ -16,11 +17,12 @@ Include "customfunctions.cb"
 bpm = 210
 space = 60000 / bpm
 
-// Timings
-Const EFFECT_FOG        = 43000
-Const EFFECT_TITLE      = 55000
-Const EFFECT_EXPLOSIONS = 60000
+// Timings -- Remember, changing these will most likely break the effects. :P
+Const EFFECT_FOG        = 40000
+Const EFFECT_TITLE      = 57000
+Const EFFECT_EXPLOSIONS = 65000
 
+Const INTRO_END         = 65000
 
 // Effect init / precalc
 Gosub InitFogs
@@ -29,24 +31,24 @@ Gosub InitTitle
 
 // Start!
 PlaySound "Chipz4end.xm"
-startTime = Timer()// - EFFECT_FOG // Skip to the end of the fog
+startTime = Timer()// - 38000 // Skip to the end of the fog
 lastUpdate = Timer()
 t = Timer()
 
 Repeat
     runTime = Timer() - startTime
-    
-    // Simulation
+
     While t < Timer()
         wisku1 = isku1
         isku1 = (runTime / space) / 4
         wisku2 = isku2
         isku2 = (runTime / space) / 2
 
-        // Move to CalcFogs?
-        If runTime < 18000 Then isku1 = ((runTime - 300) / space) / 4        
+        // Adjust to song
+        If runTime < 18000 Then isku1 = ((runTime - 300) / space) / 4
 
-        If runTime < EFFECT_FOG Then Gosub CalcFogs
+        // Simulate effects
+        If runTime < EFFECT_FOG + 4000 Then Gosub CalcFogs
         If runTime > EFFECT_FOG And runTime < EFFECT_TITLE Then Gosub CalcTitle
         If runTime > EFFECT_TITLE Then Gosub CalcExplosion
 
@@ -54,9 +56,11 @@ Repeat
     Wend
     
     // Drawing
-    If runTime < EFFECT_FOG Then Gosub DrawFogs
+    If runTime < EFFECT_FOG + 4000 Then Gosub DrawFogs
     If runTime > EFFECT_FOG And runTime < EFFECT_TITLE Then Gosub DrawTitle
     If runTime > EFFECT_TITLE Then Gosub DrawExplosion
+    
+    If runTime > INTRO_END Then End
     
     cbeSetBlendMode(CBE_BLEND_RESET)
     SetFont defaultFont
