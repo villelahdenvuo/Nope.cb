@@ -15,9 +15,9 @@ count = 48
 For i = 0 To count
     fog.FOGS = New(FOGS)
     fog\img = CloneImage(h)
-    fog\x = Rand(sw) + (1 - Rand(1) * 2) * sw * 1.2
+    fog\x = Rand(sw) + (1 - Rand(1) * 2) * sw * 1.25
     fog\y = Rand(sh)
-    fog\vx = 4 * (1 - (fog\x > sw) * 2)
+    fog\vx = 6 * (1 - (fog\x > sw) * 2)
     fog\vy = Rnd(-2,2)
     fog\a = Rnd(360)
     If sw<>960 Or sh<>540 Then ResizeImage fog\img, 722 * swra, 477 * shra
@@ -54,8 +54,11 @@ For fog.FOGS = Each FOGS
         If once Then fog\vx = Rnd(-3, 3)
         fog\x = fog\x + fog\vx*((c#+c2#+64)/64.0)*swra#*multiplier
         fog\y = fog\y + fog\vy*((c#+c2#+64)/64.0)*shra#*multiplier
-        If fog\x>sw Or fog\x<0 Then fog\vx = -fog\vx
-        If fog\y>sh Or fog\y<0 Then fog\vy = -fog\vy
+        // Change direction if the fog is moving out from the screenarea
+        If fog\x > sw And fog\vx > 0 Then fog\vx = -fog\vx
+        If fog\x <  0 And fog\vx < 0 Then fog\vx = -fog\vx
+        If fog\y > sh And fog\vy > 0 Then fog\vy = -fog\vy
+        If fog\y <  0 And fog\vy < 0 Then fog\vy = -fog\vy
     Else
         fog\x = fog\x + Cos(fog\a) * swra * multiplier * 3
         fog\y = fog\y - Sin(fog\a) * shra * multiplier * 3

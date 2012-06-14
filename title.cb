@@ -28,6 +28,7 @@ While i > 0
     i - 1
 Wend
 
+fadeIn# = 0.0
 s# = 0
 exitTitle = True
 
@@ -35,9 +36,9 @@ Return
 
 CalcTitle:
 
-fadeIn# = Float(Max(Min((Timer() - (startTime + EFFECT_FOG)) / 10, 255), 1)) / 255
+fadeIn = Float(Max(Min((Timer() - (startTime + EFFECT_FOG)) / 20, 255), 1)) / 255
 // FadeOut.
-fadeIn = FadeIn * Float(Max(Min(((startTime + EFFECT_FOG) + 15500 - Timer()) / 10, 255), 1)) / 255
+fadeIn = FadeIn * Float(Max(Min(((startTime + EFFECT_FOG) + 13500 - Timer()) / 10, 255), 1)) / 255
 
 If isku1 <> wisku1 Then
     c# = 255
@@ -59,15 +60,15 @@ Else
 EndIf
 
 For l.LETTERS = Each LETTERS
-    l\x = smooth(l\tx, l\x, 80.0)
-    l\y = smooth(l\ty, l\y, 30.0)
+    l\x = smooth(l\tx, l\x, 90.0)
+    l\y = smooth(l\ty, l\y, 40.0)
 
-    If isku2 <> wisku2 And runTime > EFFECT_TITLE - 11000  Then
+    If isku2 <> wisku2 And runTime > EFFECT_TITLE - 9000  Then
         l\y = l\y + Rand(-sh * 0.1, sh * 0.1)
     EndIf
 Next l
 
-If runTime > EFFECT_TITLE - 3000 And exitTitle Then
+If runTime > EFFECT_TITLE - 2000 And exitTitle Then
     exitTitle = False
     For l.LETTERS = Each LETTERS
         l\tx = Rand(sw) + (1 - Rand(1) * 2) * sw * 0.8

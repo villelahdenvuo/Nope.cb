@@ -6,49 +6,52 @@ Type PARTICLES
     Field vx As Float
     Field vy As Float
     Field i 'As Byte
+    Field s
+    Field t
 EndType
-
-Dim ball_c(1)
-
-ball_c(0) = LoadImage("red.png")
-ball_c(1) = LoadImage("yellow.png")
-ResizeImage ball_c(0), 64*swra#, 64*shra#
-ResizeImage ball_c(1), 64*swra#, 64*shra#
 
 Return
 
 CalcExplosion:
 
 If isku2<>wisku2 Then
-    Explosion(Rand(ScreenWidth()-64),Rand(ScreenHeight()-64))
+    Explosion(Rand(sw-64),Rand(sh-64))
 EndIf 
 
 'multiplier# = (Timer()-lastupdate)/10.0
 'lastupdate = Timer()
-For prt.PARTICLES = Each PARTICLES
-    prt\x = prt\x + prt\vx*multiplier*swra#
-    prt\y = prt\y + prt\vy*multiplier*shra#
-    If prt\x<-64 Or prt\x>ScreenWidth() Or prt\y<-64 Or prt\y>ScreenHeight() Then Delete prt
-Next prt
+For p.PARTICLES = Each PARTICLES
+    p\x = p\x + p\vx * multiplier * swra
+    p\y = p\y + p\vy * multiplier * shra
+    
+    If (p\x < -64 Or p\x > sw + 64 Or p\y < -64 Or p\y > sh + 64) and p\i <> 3 Then Delete p
+Next p
+
+
 
 Return
 
 DrawExplosion:
 cbeSetBlendMode(CBE_BLEND_RESET)
-For prt.PARTICLES = Each PARTICLES
-    DrawImage ball_c(prt\i), prt\x, prt\y
-Next prt
+For p.PARTICLES = Each PARTICLES
+    alpha# = 1.0 - (Float((Timer() - p\t)) / 1300.0)
+    cbEColor(255 * p\i,200,20, 80 * alpha)
+    a = GetAngle(p\x, p\y, p\x - p\vx, p\y - p\vy)
+    Line p\x, p\y, p\x + Cos(a) * p\s, p\y - Sin(a) * p\s
+Next p
 
 Return
 
-Function Explosion(x,y,c=512)
+Function Explosion(x,y,c = 800)
     For i = 0 To c
         kk# = 360.0/c
         prt.PARTICLES = New(PARTICLES)
         prt\x = x+Cos(i*kk#)*24
         prt\y = y-Sin(i*kk#)*24
-        prt\vx = Rnd(-8,8)
-        prt\vy = Rnd(-8,8)
+        prt\vx = Cos(Rand(360)) * Rnd(6, 12)
+        prt\vy = -Sin(Rand(360)) * Rnd(6, 12)
         prt\i = (i Mod 2)
+        prt\s = Rand(15, 70)
+        prt\t = Timer()
     Next i
 EndFunction

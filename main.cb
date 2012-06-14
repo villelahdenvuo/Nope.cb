@@ -1,10 +1,10 @@
 // Window init
-Const sw = 640
-Const sh = 360
+Const sw = 960//640
+Const sh = 540//360
 swra# = sw / 960.0
 shra# = sh / 540.0
+Smooth2D ON
 SCREEN sw, sh
-
 defaultFont = LoadFont("Courier New")
 
 Global multiplier As Float
@@ -19,10 +19,10 @@ space = 60000 / bpm
 
 // Timings -- Remember, changing these will most likely break the effects. :P
 Const EFFECT_FOG        = 40000
-Const EFFECT_TITLE      = 57000
+Const EFFECT_TITLE      = 55000
 Const EFFECT_EXPLOSIONS = 65000
 
-Const INTRO_END         = 65000
+Const INTRO_END         = 75000
 
 // Effect init / precalc
 Gosub InitFogs
@@ -31,7 +31,7 @@ Gosub InitTitle
 
 // Start!
 PlaySound "Chipz4end.xm"
-startTime = Timer()// - 38000 // Skip to the end of the fog
+startTime = Timer()// - 55000 // Skip to the end of the fog
 lastUpdate = Timer()
 t = Timer()
 
@@ -54,7 +54,7 @@ Repeat
 
         t = t + multiplier * 10
     Wend
-    
+
     // Drawing
     If runTime < EFFECT_FOG + 4000 Then Gosub DrawFogs
     If runTime > EFFECT_FOG And runTime < EFFECT_TITLE Then Gosub DrawTitle
@@ -71,10 +71,15 @@ Repeat
     DrawScreen
 Forever
 
+Function smooth#(_new#,_old#,_smooth#)
+    Return _old + (_new - _old) * (1.0 / _smooth) * multiplier
+EndFunction
+
+Global LsIP_x#
+Global LsIP_y#
+
+
+// Include the effect sub-routines.
 Include "balls.cb"
 Include "title.cb"
 Include "explosion.cb"
-
-Function smooth#(_new#,_old#,_smooth#)
-    Return _old + (_new - _old) * (1.0 / _smooth) * multiplier
-EndFunction 
