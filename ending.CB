@@ -1,0 +1,34 @@
+Ending:
+Text 0,0,"loput konsolis"
+DrawScreen
+
+m = 4
+Repeat
+    runTime = Timer() - startTime
+    r = r + 1
+    st$ = ""
+    For i = 1 To (24+r)/10
+        st$ = st$ + Chr(Rand(33,64))
+    Next i
+    If r<24*m Then 
+        st$ = st$ + "Coding by:"
+    ElseIf r>24*m And r<48*m Then
+        st$ = st$ + "Viltzu & tuhoojabotti"
+    ElseIf r>48*m And r<72*m Then
+        st$ = st$ + "Thanks For Wing of making the music"
+    ElseIf r>72*m And r<96*m Then
+        st$ = st$ + "Thanks For Watching"
+    ElseIf r>96*m And r<120*m Then
+        st$ = st$ + "Greets:"
+    ElseIf r>120*m Then
+        st$ = st$ + "#cb2 <3  #CoolBasic  #kpelit  sysleri  cbE-devteam  Zerppa"
+    EndIf
+    
+    For i = Len(st$) To 80
+        st$ = st$ + Chr(Rand(33,64))
+    Next i
+    Print st$
+    Wait 10
+    If runTime > INTRO_END Then End
+Forever
+WaitKey

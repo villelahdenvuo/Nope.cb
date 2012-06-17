@@ -1,6 +1,6 @@
 // Window init
-Const sw = 960//640
-Const sh = 540//360
+Const sw = 960 //640
+Const sh = 540 //360
 swra# = sw / 960.0
 shra# = sh / 540.0
 Smooth2D ON
@@ -20,18 +20,18 @@ space = 60000 / bpm
 // Timings -- Remember, changing these will most likely break the effects. :P
 Const EFFECT_FOG        = 40000
 Const EFFECT_TITLE      = 55000
-Const EFFECT_EXPLOSIONS = 65000
+Const EFFECT_EXPLOSIONS = 92000
 
-Const INTRO_END         = 75000
+Const INTRO_END         = 130000
 
 // Effect init / precalc
 Gosub InitFogs
-Gosub InitExplosion
+Gosub InitSparks
 Gosub InitTitle
 
 // Start!
 PlaySound "Chipz4end.xm"
-startTime = Timer()// - 55000 // Skip to the end of the fog
+startTime = Timer() '- 38000 // Skip to the end of the fog
 lastUpdate = Timer()
 t = Timer()
 
@@ -50,7 +50,7 @@ Repeat
         // Simulate effects
         If runTime < EFFECT_FOG + 4000 Then Gosub CalcFogs
         If runTime > EFFECT_FOG And runTime < EFFECT_TITLE Then Gosub CalcTitle
-        If runTime > EFFECT_TITLE Then Gosub CalcExplosion
+        If runTime > EFFECT_TITLE And runTime < EFFECT_EXPLOSIONS Then Gosub CalcSparks
 
         t = t + multiplier * 10
     Wend
@@ -58,16 +58,13 @@ Repeat
     // Drawing
     If runTime < EFFECT_FOG + 4000 Then Gosub DrawFogs
     If runTime > EFFECT_FOG And runTime < EFFECT_TITLE Then Gosub DrawTitle
-    If runTime > EFFECT_TITLE Then Gosub DrawExplosion
-    
-    If runTime > INTRO_END Then End
+    If runTime > EFFECT_TITLE And runTime < EFFECT_EXPLOSIONS Then Gosub DrawSparks
+    If runTime > EFFECT_EXPLOSIONS Then Goto Ending
     
     cbeSetBlendMode(CBE_BLEND_RESET)
     SetFont defaultFont
     Color 255, 255, 255
-    Text 0, 0, FPS()
-    Text 0, 15, runTime
-    Text 0, 30, fadeIn#
+    Text 0, 0, "FPS: "+FPS()
     DrawScreen
 Forever
 
@@ -83,3 +80,4 @@ Global LsIP_y#
 Include "balls.cb"
 Include "title.cb"
 Include "explosion.cb"
+Include "ending.cb"

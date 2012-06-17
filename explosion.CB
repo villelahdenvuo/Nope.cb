@@ -1,57 +1,60 @@
-InitExplosion:
+InitSparks:
 
-Type PARTICLES
+Type SPARKS
     Field x As Float
     Field y As Float
-    Field vx As Float
-    Field vy As Float
-    Field i 'As Byte
-    Field s
-    Field t
+    Field v As Float
+    Field a As Float
+    Field f As Float
+    Field s As Float
 EndType
 
 Return
 
-CalcExplosion:
+CalcSparks:
 
 If isku2<>wisku2 Then
-    Explosion(Rand(sw-64),Rand(sh-64))
+    Explosion(Rand(sw),Rand(sh))
+    c# = 255
+Else
+    c# = smooth(0,c,20)
 EndIf 
 
-'multiplier# = (Timer()-lastupdate)/10.0
-'lastupdate = Timer()
-For p.PARTICLES = Each PARTICLES
-    p\x = p\x + p\vx * multiplier * swra
-    p\y = p\y + p\vy * multiplier * shra
-    
-    If (p\x < -64 Or p\x > sw + 64 Or p\y < -64 Or p\y > sh + 64) and p\i <> 3 Then Delete p
-Next p
-
-
-
-Return
-
-DrawExplosion:
-cbeSetBlendMode(CBE_BLEND_RESET)
-For p.PARTICLES = Each PARTICLES
-    alpha# = 1.0 - (Float((Timer() - p\t)) / 1300.0)
-    cbEColor(255 * p\i,200,20, 80 * alpha)
-    a = GetAngle(p\x, p\y, p\x - p\vx, p\y - p\vy)
-    Line p\x, p\y, p\x + Cos(a) * p\s, p\y - Sin(a) * p\s
-Next p
+For spark.SPARKS = Each SPARKS
+    spark\x = spark\x + Cos(spark\a)*spark\v
+    spark\y = spark\y - Sin(spark\a)*spark\v
+    If spark\s>0 Then spark\s = spark\s - 0.5
+    If spark\x<0 Or spark\x>sw Then del_spark = 1
+    If (spark\y<0 Or spark\y>sh) Or del_spark Then 
+        Delete spark
+        del_spark = 0
+    EndIf
+Next spark
 
 Return
 
-Function Explosion(x,y,c = 800)
-    For i = 0 To c
-        kk# = 360.0/c
-        prt.PARTICLES = New(PARTICLES)
-        prt\x = x+Cos(i*kk#)*24
-        prt\y = y-Sin(i*kk#)*24
-        prt\vx = Cos(Rand(360)) * Rnd(6, 12)
-        prt\vy = -Sin(Rand(360)) * Rnd(6, 12)
-        prt\i = (i Mod 2)
-        prt\s = Rand(15, 70)
-        prt\t = Timer()
+DrawSparks:
+cbeSetBlendMode(CBE_BLEND_ADDITIVE)
+For spark.SPARKS = Each SPARKS
+    'For w# = 1 To RoundUp(Sqrt(swra#^2+shra#^2))
+    '    Line spark\x+w,spark\y+w, spark\x+Cos(spark\a)*24+w,spark\y-Sin(spark\a)*24+w
+    'Next w#
+    cbeColor(0,c#,255,50)
+    Box spark\x-spark\s/2, spark\y-spark\s/2, spark\s*swra, spark\s*shra
+    'sc = 1 + (s / 100)
+    'cbeTriangle(spark\x + 14 * Cos(runTime) * swra, spark\y, spark\x + 16 * sc * swra, spark\y + 6 * sc + 10 * Sin(runTime) * shra, spark\x - 8 * sc * swra, spark\y + 13 * sc * shra, 2, ON)    
+Next spark
+
+Return
+
+Function Explosion(x,y)
+    For i = 0 To 359
+        spark.SPARKS = New(SPARKS)
+        spark\x = x
+        spark\y = y
+        spark\v = Rnd(0.5,3)
+        spark\a = i
+        spark\s = 96
     Next i
 EndFunction
+    
